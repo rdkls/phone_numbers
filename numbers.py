@@ -1,7 +1,8 @@
-#!/Users/nick/ws/numbers/venv/n/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 import sys
 import re
+import time
 
 class Node:
     nodes = {}
@@ -28,7 +29,7 @@ class Node:
         """
 
         # If the word contains non-letter characters, skip
-        if not re.match('^[a-z]+$', final_word):
+        if not re.match('^[A-Z]+$', final_word):
             return self
 
         if letters_remaining:
@@ -54,8 +55,7 @@ class Node:
         have_allowed_a_number effects the 'can skip one number' rule
 
         """
-        #just used for debugging
-        #print 'possible_words, rem=%s, im=%s, huanaw¡=%s' % (numbers_remaining, self, have_used_a_number_as_word)
+        print 'possible_words, rem=%s, im=%s, huanaw¡=%s' % (numbers_remaining, self, have_used_a_number_as_word)
 
         # First time, we'll becalled with no root node specified; i am the root
         if not root_node:
@@ -103,14 +103,16 @@ class Node:
 if __name__ == '__main__':
     # Build the letter-to-number mapping
     number_to_letter_mapping = {
-        '2': '2abc',
-        '3': '3def',
-        '4': '4ghi',
-        '5': '5jkl',
-        '6': '6mno',
-        '7': '7pqrs',
-        '8': '8tuv',
-        '9': '9wxzy',
+        '0': '0',
+        '1': '1',
+        '2': '2ABC',
+        '3': '3DEF',
+        '4': '4GHI',
+        '5': '5JKL',
+        '6': '6MNO',
+        '7': '7PQRS',
+        '8': '8TUV',
+        '9': '9WXZY',
     }
     letter_to_number_mapping = {}
     for n in number_to_letter_mapping:
@@ -119,25 +121,36 @@ if __name__ == '__main__':
 
     # Load the dict
     dictfile = '/usr/share/dict/words'
+    dictfile =  'dict_words'
     #dictfile =  'words'
     words = open(dictfile, 'r')
     root_node = Node()
+    i=0
+    start_time = time.time()
     for word in words:
-        word = word.strip().lower()
+        i+=1
+        word = word.strip().upper()
         root_node = root_node.insert_word(letter_to_number_mapping, letters_remaining=word, final_word=word)
+    end_time = time.time()
+    #print 'loaded %s words in %s sec' % (i, int(end_time-start_time))
 
     for line in sys.stdin:
-        print root_node.possible_words(line.strip())
+        number = line.strip()
+        number = re.sub('[^0-9]', '', number)
+        words = root_node.possible_words(number)
+        for word in words:
+            print word
 
-    # Stuff for testing
+
+    # All below is testing util stuff
     def w2n(word):
         """Util to convert a word to numbers
         """
+        word = re.sub('[^A-Z0-9]', '', word)
         return ''.join([letter_to_number_mapping[x] for x in word])
-    #print 'final: %s' % root_node.possible_words(w2n('cat9bat'))
     #print 'final: %s' % root_node.possible_words(w2n('cross3word'))
     #print 'final: %s' % root_node.possible_words(w2n('cross3words'))
-    #print 'final: %s' % root_node.possible_words(w2n('bats'))
+    #print 'final: %s' % root_node.possible_words(w2n('catbat'))
     #print 'final: %s' % root_node.possible_words(w2n('bat'))
 
     def generate_some_phone_numbers():
@@ -145,6 +158,3 @@ if __name__ == '__main__':
         for i in xrange(100):
             print random.randint(10000000,19999999)
     #generate_some_phone_numbers()
-        
-
-
